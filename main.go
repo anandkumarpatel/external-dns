@@ -108,6 +108,8 @@ func main() {
 				MaxChangeCount: cfg.AWSMaxChangeCount,
 				AssumeRole:     cfg.AWSAssumeRole,
 				DryRun:         cfg.DryRun,
+				UseWeights:     cfg.UseWeights,
+				Weight:         cfg.Weight,
 			},
 		)
 	case "aws-sd":

@@ -94,6 +94,8 @@ type AWSProvider struct {
 	zoneIDFilter ZoneIDFilter
 	// filter hosted zones by type (e.g. private or public)
 	zoneTypeFilter ZoneTypeFilter
+	useWeights     bool
+	weight         int
 }
 
 // AWSConfig contains configuration to create a new AWS provider.
@@ -105,6 +107,8 @@ type AWSConfig struct {
 	EvaluateTargetHealth bool
 	AssumeRole           string
 	DryRun               bool
+	UseWeights           bool
+	Weight               int
 }
 
 // NewAWSProvider initializes a new AWS Route53 based Provider.
@@ -141,6 +145,8 @@ func NewAWSProvider(awsConfig AWSConfig) (*AWSProvider, error) {
 		maxChangeCount:       awsConfig.MaxChangeCount,
 		evaluateTargetHealth: awsConfig.EvaluateTargetHealth,
 		dryRun:               awsConfig.DryRun,
+		useWeights:           awsConfig.UseWeights,
+		weight:               awsConfig.Weight,
 	}
 
 	return provider, nil
@@ -333,6 +339,11 @@ func (p *AWSProvider) newChange(action string, endpoint *endpoint.Endpoint) *rou
 		ResourceRecordSet: &route53.ResourceRecordSet{
 			Name: aws.String(endpoint.DNSName),
 		},
+	}
+
+	if p.useWeights {
+		change.ResourceRecordSet.Weight = aws.Int64(int64(p.weight))
+		change.ResourceRecordSet.SetIdentifier = aws.String(endpoint.DNSName)
 	}
 
 	if isAWSLoadBalancer(endpoint) {
