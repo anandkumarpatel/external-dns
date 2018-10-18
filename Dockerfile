@@ -26,7 +26,8 @@ RUN make build
 # final image
 # hadolint ignore=DL3026
 FROM alpine:3.8 AS prod
-
+# hadolint ignore=DL3018
+RUN apk update && apk add ca-certificates --no-cache
 COPY --from=builder /go/src/github.com/kubernetes-incubator/external-dns/build/external-dns /bin/external-dns
 
 USER nobody
